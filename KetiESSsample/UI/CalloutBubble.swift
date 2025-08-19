@@ -3,33 +3,36 @@ import SwiftUI
 struct CalloutBubble: View {
     let title: String
     let detail: String
-    @State private var isHovering = false  // 👈 호버 상태 추가
+    @State private var isExpanded = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(title)
-                    .font(.title2)  // 👈 더 큰 폰트로 변경
-                    .fontWeight(.semibold)
-                
-                // 호버 안 했을 때만 info 아이콘 표시
-                if !isHovering {
-                    Image(systemName: "info.circle.fill")
-                        .foregroundColor(.blue.opacity(0.7))
-                        .font(.body)
-                        .transition(.scale.combined(with: .opacity))
+        VStack(alignment: .leading, spacing: 6) {
+            // 👇 버튼으로 변경
+            Button(action: {
+                withAnimation(.spring(response: 0.3)) {
+                    isExpanded.toggle()
+                }
+            }) {
+                HStack {
+                    Text(title)
+                        .font(.title2)
+                        .foregroundColor(.primary)  // 색상 유지
+                    
+                    Image(systemName: isExpanded ? "chevron.up.circle.fill" : "chevron.down.circle.fill")
+                        .foregroundColor(.blue)
+                        .font(.title2)
                 }
             }
+            .buttonStyle(.plain)  // 기본 버튼 스타일 제거
+            .hoverEffect()  // 호버 효과 추가
             
-            // 호버시 detail 표시
-            if isHovering {
+            if isExpanded {
                 Text(detail)
                     .font(.body)
-                    .foregroundColor(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                     .transition(.asymmetric(
-                        insertion: .push(from: .top).combined(with: .opacity),
-                        removal: .push(from: .bottom).combined(with: .opacity)
+                        insertion: .move(edge: .top).combined(with: .opacity),
+                        removal: .move(edge: .top).combined(with: .opacity)
                     ))
             }
         }
@@ -43,15 +46,8 @@ struct CalloutBubble: View {
                 .offset(y: 6)
         }
         .glassBackgroundEffect()
-        .onHover { hovering in  // 👈 호버 감지
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                isHovering = hovering
-            }
-        }
-        // 호버시 살짝 커지는 효과 (선택사항)
-        .scaleEffect(isHovering ? 1.05 : 1.0)
-        .animation(.easeInOut(duration: 0.2), value: isHovering)
     }
+ 
 }
 
 private struct Triangle: Shape {

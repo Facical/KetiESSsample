@@ -337,13 +337,6 @@ struct CarView: View {
                     }
                 }
             } attachments: {
-                // (visionOS 2) 루트 테스트용
-//                Attachment(id: "root") {
-//                    CalloutBubble(title: "차량", detail: "루트 Callout (테스트)", showDetail: false)
-//                        .frame(minWidth: 200) // 프레임은 커도 스케일로 12cm에 맞춰짐
-//                        .padding(4)
-//                }
-                // (visionOS 2) 파트별 말풍선
                 ForEach(CarParts.all) { part in
                     Attachment(id: part.id) {
                         CalloutBubble(title: part.title, detail: part.detail)

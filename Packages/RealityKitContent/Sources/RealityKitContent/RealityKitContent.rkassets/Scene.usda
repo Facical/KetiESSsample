@@ -18,8 +18,55 @@ def Xform "Root"
     )
     {
         float3 xformOp:scale = (0.01, 0.01, 0.01)
-        float3 xformOp:translate = (0.6881777, 0, -0.1855129)
+        float3 xformOp:translate = (0, 0, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        over "Meshes"
+        {
+            over "Sketchfab_model"
+            {
+                over "turbine_01_obj_cleaner_materialmerger_gles"
+                {
+                    over "Object_5"
+                    {
+                        def RealityKitComponent "InputTarget"
+                        {
+                            bool enabled = 1
+                            uniform token info:id = "RealityKit.InputTarget"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    def RealityKitComponent "Anchoring"
+    {
+        uniform token info:id = "RealityKit.Anchoring"
+
+        def RealityKitStruct "descriptor"
+        {
+            token type = "World"
+        }
+    }
+
+    def RealityKitComponent "Collider"
+    {
+        uint group = 1
+        uniform token info:id = "RealityKit.Collider"
+        uint mask = 4294967295
+        token type = "Default"
+
+        def RealityKitStruct "Shape"
+        {
+            float3 extent = (4.008566, 1.5734113, 1.586141)
+            token shapeType = "Box"
+
+            def RealityKitStruct "pose"
+            {
+                float3 position = (0.13138068, 4.7683716e-7, 0)
+            }
+        }
     }
 }
 

@@ -16,7 +16,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		8D3EA5AD2E3B4F5600D95234 /* Exceptions for "KetiESSsample" folder in "KetiESSsample" target */ = {
+		8D2B4CB62E5456C6005AF1CC /* Exceptions for "KetiESSsample" folder in "KetiESSsample" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -29,7 +29,7 @@
 		8D3EA5A12E3B4F5400D95234 /* KetiESSsample */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				8D3EA5AD2E3B4F5600D95234 /* Exceptions for "KetiESSsample" folder in "KetiESSsample" target */,
+				8D2B4CB62E5456C6005AF1CC /* Exceptions for "KetiESSsample" folder in "KetiESSsample" target */,
 			);
 			path = KetiESSsample;
 			sourceTree = "<group>";

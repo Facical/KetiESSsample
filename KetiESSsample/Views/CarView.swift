@@ -1,16 +1,8 @@
-/*
-See the LICENSE.txt file for this sample's licensing information.
-
-Abstract:
-A view to load in a model of a car that people can manipulate with gestures.
-*/
-
 import SwiftUI
 import RealityKit
 import simd
 
-// ===== 말풍선 목표 폭(미터) — 필요시 0.10~0.16 사이로 조절 =====
-private let targetCalloutWidth: Float = 0.16    // 12cm
+private let targetCalloutWidth: Float = 0.35    // 35cm
 
 // ===== 디버그: 엔티티 이름 덤프 =====
 func dumpEntityNames(_ entity: Entity, indent: String = "") {
@@ -108,7 +100,11 @@ struct CarView: View {
 
                     // 계층 전체 충돌/입력 활성화
                     car.generateCollisionShapes(recursive: true)
-                    car.forEachDescendant { $0.components.set(InputTargetComponent()) }
+                    car.forEachDescendant { entity in
+                        var inputTarget = InputTargetComponent()
+                        inputTarget.allowedInputTypes = .indirect
+                        entity.components.set(inputTarget)
+                    }
 
                     // 배치
                     let bounds = car.visualBounds(relativeTo: nil)

@@ -14,12 +14,20 @@ struct MainView: View {
     var body: some View {
         // Display a line of text and
         // open a new immersive space environment.
-        Text("Use gestures to move the car")
-            .onAppear {
+        VStack{
+            Text("Select Model")
+                .font(.headline)
+            Button("Uracan") {
                 Task {
                     await openImmersiveSpace(id: "CarView")
                 }
             }
+            Button("Turbine") {
+                Task {
+                    await openImmersiveSpace(id: "TurbineView")
+                }
+            }
+        }
     }
 }
 

@@ -151,6 +151,11 @@ struct TurbineView: View {
                         if callout.parent == nil { turbine.addChild(callout) }
                         callout.setWorldPosition(worldTarget)
                         callout.components.set(BillboardComponent())
+                        
+                        var inputTarget = InputTargetComponent()
+                        inputTarget.allowedInputTypes = .indirect
+                        callout.components.set(inputTarget)
+                        
                         fitTurbineAttachmentWidth(callout, targetWidth: targetCalloutWidth)
                         callout.isEnabled = showCallouts
                     } else {
@@ -255,12 +260,6 @@ struct TurbineView: View {
                     }
                 }
             } attachments: {
-                // 루트 테스트용
-                Attachment(id: "root") {
-                    CalloutBubble(title: "터빈 엔진", detail: "제트 엔진 터보팬")
-                        .frame(minWidth: 200)
-                        .padding(4)
-                }
                 // 파트별 말풍선
                 ForEach(TurbineParts.all) { part in
                     Attachment(id: part.id) {

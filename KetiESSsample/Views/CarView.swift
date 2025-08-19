@@ -60,7 +60,7 @@ struct CarView: View {
     @State private var carEntity: Entity?
     @State private var showCallouts: Bool = true
     @State private var didDumpNames = false
-    @State private var updateSub: EventSubscription?   // 리더라인 업데이트 구독
+    @State private var updateSub: EventSubscription?
 
     // ===== 제스처: 항상 루트(carEntity)만 조작 =====
     var translationGesture: some Gesture {
@@ -229,6 +229,9 @@ struct CarView: View {
                         if callout.parent == nil { car.addChild(callout) }
                         callout.setWorldPosition(worldTarget)
                         callout.components.set(BillboardComponent())
+                        var inputTarget = InputTargetComponent()
+                                    inputTarget.allowedInputTypes = .indirect
+                                    callout.components.set(inputTarget)
                         // ★ 크기 자동 보정
                         fitAttachmentWidth(callout, targetWidth: targetCalloutWidth)
                         callout.isEnabled = showCallouts
@@ -335,11 +338,11 @@ struct CarView: View {
                 }
             } attachments: {
                 // (visionOS 2) 루트 테스트용
-                Attachment(id: "root") {
-                    CalloutBubble(title: "차량", detail: "루트 Callout (테스트)")
-                        .frame(minWidth: 200) // 프레임은 커도 스케일로 12cm에 맞춰짐
-                        .padding(4)
-                }
+//                Attachment(id: "root") {
+//                    CalloutBubble(title: "차량", detail: "루트 Callout (테스트)", showDetail: false)
+//                        .frame(minWidth: 200) // 프레임은 커도 스케일로 12cm에 맞춰짐
+//                        .padding(4)
+//                }
                 // (visionOS 2) 파트별 말풍선
                 ForEach(CarParts.all) { part in
                     Attachment(id: part.id) {
@@ -353,10 +356,7 @@ struct CarView: View {
             .gesture(translationGesture)
             .simultaneousGesture(scaleGesture)
 
-            // 토글
-            Toggle("부품 설명", isOn: $showCallouts)
-                .toggleStyle(.switch)
-                .padding()
         }
     }
 }
+

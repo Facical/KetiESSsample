@@ -230,8 +230,8 @@ struct CarView: View {
                         callout.setWorldPosition(worldTarget)
                         callout.components.set(BillboardComponent())
                         var inputTarget = InputTargetComponent()
-                                    inputTarget.allowedInputTypes = .indirect
-                                    callout.components.set(inputTarget)
+                        inputTarget.allowedInputTypes = [.direct, .indirect]
+                        callout.components.set(inputTarget)
                         // ★ 크기 자동 보정
                         fitAttachmentWidth(callout, targetWidth: targetCalloutWidth)
                         callout.isEnabled = showCallouts

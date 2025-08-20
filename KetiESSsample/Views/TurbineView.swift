@@ -153,7 +153,7 @@ struct TurbineView: View {
                         callout.components.set(BillboardComponent())
                         
                         var inputTarget = InputTargetComponent()
-                        inputTarget.allowedInputTypes = .indirect
+                        inputTarget.allowedInputTypes = [.direct, .indirect]
                         callout.components.set(inputTarget)
                         
                         fitTurbineAttachmentWidth(callout, targetWidth: targetCalloutWidth)

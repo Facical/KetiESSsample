@@ -7,7 +7,6 @@ struct CalloutBubble: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            // 👇 버튼으로 변경
             Button(action: {
                 withAnimation(.spring(response: 0.3)) {
                     isExpanded.toggle()
@@ -40,7 +39,7 @@ struct CalloutBubble: View {
         .background(.ultraThinMaterial, in: .rect(cornerRadius: 12))
         .overlay(alignment: .bottom) {
             Triangle()
-                .frame(width: 14, height: 8)
+                .frame(width: 14, height: 10)
                 .rotationEffect(.degrees(180))
                 .foregroundStyle(.ultraThinMaterial)
                 .offset(y: 6)

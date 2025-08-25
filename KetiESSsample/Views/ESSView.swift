@@ -355,20 +355,20 @@ struct ModuleInfoBubble: View {
                     .fill(module.status.color)
                     .frame(width: 10, height: 10)
                 Text("M\(module.position + 1)")
-                    .font(.caption2)
+                    .font(.caption)
                     .fontWeight(.bold)
             }
             
             VStack(alignment: .leading, spacing: 2) {
                 Text("\(Int(module.soc))%")
-                    .font(.caption2)
+                    .font(.caption)
                 Text(String(format: "%.1fV", module.voltage))
-                    .font(.caption2)
+                    .font(.caption)
                 Text(String(format: "%.1f°C", module.temperature))
-                    .font(.caption2)
+                    .font(.caption)
             }
         }
-        .padding(8)
+        .padding(30)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }

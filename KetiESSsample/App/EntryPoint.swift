@@ -9,7 +9,7 @@ struct EntryPoint: App {
             MainView()
         }
         .windowStyle(.plain)
-        .defaultSize(width: 500, height: 700)
+        .defaultSize(width: 1500, height: 900)
         
         // ESS View - 메인 기능
         ImmersiveSpace(id: "ESSView") {

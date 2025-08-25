@@ -98,6 +98,7 @@ struct ESSView: View {
                     if index < systemModel.modules.count {
                         Attachment(id: "module_\(index)") {
                             ModuleInfoBubble(module: systemModel.modules[index])
+                                .scaleEffect(1.25)
                         }
                     }
                 }

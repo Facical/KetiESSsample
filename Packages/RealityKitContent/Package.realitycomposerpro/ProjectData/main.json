@@ -8,6 +8,7 @@
     "\/RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/car.usda" : "C8069472-BAAC-4DDB-B601-980AE0F7831F",
     "\/RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/procedural_sphere_grid.usda" : "34C460AE-CA1B-4348-BD05-621ACBDFFE97",
     "RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/GridMaterial.usda" : "FBD8436F-6B8B-4B82-99B5-995D538B4704",
+    "RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/Materials\/GridMaterial.usda" : "19C07DBA-C074-448D-A551-4A5A7BD0513B",
     "RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/Rack.usda" : "D85DDB44-182D-4A50-94C7-6A1FB6EAC44B",
     "RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/Rack.usdc" : "00057350-05D2-43BE-9A58-728BDF91EF95",
     "RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/RackTest.usda" : "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
@@ -18,6 +19,7 @@
   "projectID" : -7019485918623590596,
   "uuidToIntID" : {
     "00057350-05D2-43BE-9A58-728BDF91EF95" : 742791081522829613,
+    "19C07DBA-C074-448D-A551-4A5A7BD0513B" : -1764047565712016694,
     "26DBAE76-5DD8-47B6-A085-1B4ADA111097" : 5084616210976425330,
     "3F565A2D-BBB4-466F-829F-31FAD6AA6D44" : -3310082829051012194,
     "66390EA1-FD25-4E92-8F5D-7A87005667F6" : -2953984556567523938,

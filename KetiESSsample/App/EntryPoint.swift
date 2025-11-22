@@ -16,15 +16,10 @@ struct EntryPoint: App {
             ESSView()
         }
         .immersionStyle(selection: .constant(.mixed), in: .mixed)
-        
-        // Sample Models - 기존 모델들
-        ImmersiveSpace(id: "CarView") {
-            CarView()
-        }
-        .immersionStyle(selection: .constant(.mixed), in: .mixed)
-        
-        ImmersiveSpace(id: "TurbineView") {
-            TurbineView()
+
+        // Rack View - ESS Rack 3D 모델
+        ImmersiveSpace(id: "RackView") {
+            RackView()
         }
         .immersionStyle(selection: .constant(.mixed), in: .mixed)
     }

@@ -17,7 +17,8 @@
       },
       [
         "0A9B4653-B11E-4D6A-850E-C6FCB621626C",
-        "Root"
+        "Root",
+        "Sphere"
       ],
       {
         "isExpanded" : true,
@@ -25,8 +26,7 @@
       },
       [
         "0A9B4653-B11E-4D6A-850E-C6FCB621626C",
-        "Root",
-        "Sphere"
+        "Root"
       ],
       {
         "isExpanded" : true,
@@ -49,8 +49,15 @@
       [
         "26DBAE76-5DD8-47B6-A085-1B4ADA111097",
         "Root",
-        "Turbine__Turbofan_Engine__Jet_Engine",
-        "Meshes"
+        "Turbine__Turbofan_Engine__Jet_Engine"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "26DBAE76-5DD8-47B6-A085-1B4ADA111097",
+        "Root"
       ],
       {
         "isExpanded" : true,
@@ -82,15 +89,8 @@
       [
         "26DBAE76-5DD8-47B6-A085-1B4ADA111097",
         "Root",
-        "Turbine__Turbofan_Engine__Jet_Engine"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "26DBAE76-5DD8-47B6-A085-1B4ADA111097",
-        "Root"
+        "Turbine__Turbofan_Engine__Jet_Engine",
+        "Meshes"
       ],
       {
         "isExpanded" : true,
@@ -108,9 +108,20 @@
       [
         "3F565A2D-BBB4-466F-829F-31FAD6AA6D44",
         "Root",
+        "Rack"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "3F565A2D-BBB4-466F-829F-31FAD6AA6D44",
+        "Root",
         "Rack",
+        "Rack_001",
         "Geom",
-        "SimLabBlender"
+        "SimLabBlender",
+        "New_2054"
       ],
       {
         "isExpanded" : true,
@@ -140,18 +151,8 @@
         "3F565A2D-BBB4-466F-829F-31FAD6AA6D44",
         "Root",
         "Rack",
-        "Geom",
-        "SimLabBlender",
-        "New_2054"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "3F565A2D-BBB4-466F-829F-31FAD6AA6D44",
-        "Root",
-        "Rack"
+        "Rack_001",
+        "Geom"
       ],
       {
         "isExpanded" : true,
@@ -161,6 +162,29 @@
         "3F565A2D-BBB4-466F-829F-31FAD6AA6D44",
         "Root",
         "Rack",
+        "SimLabBlender"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "3F565A2D-BBB4-466F-829F-31FAD6AA6D44",
+        "Root",
+        "Rack",
+        "Geom",
+        "SimLabBlender"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "3F565A2D-BBB4-466F-829F-31FAD6AA6D44",
+        "Root",
+        "Rack",
+        "Rack_001",
+        "Geom",
         "SimLabBlender"
       ],
       {
@@ -179,6 +203,28 @@
         "3F565A2D-BBB4-466F-829F-31FAD6AA6D44",
         "Root",
         "Rack",
+        "Rack_001"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "3F565A2D-BBB4-466F-829F-31FAD6AA6D44",
+        "Root",
+        "Rack",
+        "SimLabBlender",
+        "New_2054"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "3F565A2D-BBB4-466F-829F-31FAD6AA6D44",
+        "Root",
+        "Rack",
+        "Geom",
         "SimLabBlender",
         "New_2054"
       ],
@@ -244,14 +290,6 @@
     "objectMetadataList" : [
       [
         "91D34389-DF66-4220-80C1-5B7031B2B8B2",
-        "Root"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "91D34389-DF66-4220-80C1-5B7031B2B8B2",
         "Root",
         "RackTest",
         "SimLabBlender",
@@ -267,7 +305,9 @@
         "Root",
         "RackTest",
         "SimLabBlender",
-        "New_2054"
+        "New_2054",
+        "Module1",
+        "cell1"
       ],
       {
         "isExpanded" : true,
@@ -277,11 +317,7 @@
         "91D34389-DF66-4220-80C1-5B7031B2B8B2",
         "Root",
         "RackTest",
-        "SimLabBlender",
-        "New_2054",
-        "Module1",
-        "cell1",
-        "cell1_01"
+        "_materials"
       ],
       {
         "isExpanded" : true,
@@ -325,7 +361,8 @@
         "SimLabBlender",
         "New_2054",
         "Module1",
-        "cell1"
+        "cell1",
+        "cell1_01"
       ],
       {
         "isExpanded" : true,
@@ -335,7 +372,16 @@
         "91D34389-DF66-4220-80C1-5B7031B2B8B2",
         "Root",
         "RackTest",
-        "_materials"
+        "SimLabBlender",
+        "New_2054"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "91D34389-DF66-4220-80C1-5B7031B2B8B2",
+        "Root"
       ],
       {
         "isExpanded" : true,
@@ -351,63 +397,7 @@
         "Rack2",
         "SimLabBlender",
         "New_2054",
-        "New161"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
-        "Root",
-        "Rack2",
-        "SimLabBlender",
-        "New_2054",
-        "New116"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
-        "Root",
-        "Rack2",
-        "SimLabBlender",
-        "New_2054",
-        "New122"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
-        "Root",
-        "Rack2",
-        "SimLabBlender",
-        "New_2054",
-        "New138"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
-        "Root",
-        "Rack2",
-        "SimLabBlender",
-        "New_2054",
-        "New124"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
-        "Root"
+        "New130"
       ],
       {
         "isExpanded" : true,
@@ -420,63 +410,6 @@
         "SimLabBlender",
         "New_2054",
         "New674"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
-        "Root",
-        "Rack2",
-        "SimLabBlender",
-        "New_2054",
-        "Module7"
-      ],
-      {
-        "disallowsFraming" : false,
-        "isExpanded" : false,
-        "isLocked" : false
-      },
-      [
-        "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
-        "Root",
-        "Rack2",
-        "SimLabBlender",
-        "New_2054",
-        "New11"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
-        "Root",
-        "Rack2",
-        "SimLabBlender",
-        "New_2054",
-        "New19"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
-        "Root",
-        "Rack2"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
-        "Root",
-        "Rack2",
-        "SimLabBlender",
-        "New_2054"
       ],
       {
         "isExpanded" : true,
@@ -510,6 +443,82 @@
         "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
         "Root",
         "Rack2",
+        "SimLabBlender",
+        "New_2054",
+        "New11"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
+        "Root",
+        "Rack2",
+        "SimLabBlender",
+        "New_2054",
+        "New124"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
+        "Root",
+        "Rack2",
+        "SimLabBlender",
+        "New_2054"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
+        "Root",
+        "Rack2",
+        "SimLabBlender",
+        "New_2054",
+        "New122"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
+        "Root"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
+        "Root",
+        "Rack2",
+        "SimLabBlender",
+        "New_2054",
+        "New19"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
+        "Root",
+        "Rack2"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
+        "Root",
+        "Rack2",
         "SimLabBlender"
       ],
       {
@@ -522,7 +531,44 @@
         "Rack2",
         "SimLabBlender",
         "New_2054",
-        "New130"
+        "Module7"
+      ],
+      {
+        "disallowsFraming" : false,
+        "isExpanded" : false,
+        "isLocked" : false
+      },
+      [
+        "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
+        "Root",
+        "Rack2",
+        "SimLabBlender",
+        "New_2054",
+        "New116"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
+        "Root",
+        "Rack2",
+        "SimLabBlender",
+        "New_2054",
+        "New138"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "993F357E-20AD-4B1F-A5ED-266B69B18DEB",
+        "Root",
+        "Rack2",
+        "SimLabBlender",
+        "New_2054",
+        "New161"
       ],
       {
         "isExpanded" : true,
@@ -535,69 +581,7 @@
       [
         "C8069472-BAAC-4DDB-B601-980AE0F7831F",
         "Root",
-        "Huracan_EVO_RWD_Spyder_opt_22",
-        "Huracan_EVO_RWD04",
-        "Radiator62"
-      ],
-      {
-        "isExpanded" : false,
-        "isLocked" : true
-      },
-      [
-        "C8069472-BAAC-4DDB-B601-980AE0F7831F",
-        "Root",
-        "Huracan_EVO_RWD_Spyder_opt_22",
-        "Huracan_EVO_RWD04",
-        "FrontLight85"
-      ],
-      {
-        "isExpanded" : false,
-        "isLocked" : true
-      },
-      [
-        "C8069472-BAAC-4DDB-B601-980AE0F7831F",
-        "Root",
-        "Huracan_EVO_RWD_Spyder_opt_22",
-        "Huracan_EVO_RWD04"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "C8069472-BAAC-4DDB-B601-980AE0F7831F",
-        "Root",
-        "Huracan_EVO_RWD_Spyder_opt_22",
-        "Huracan_EVO_RWD04",
-        "FrontBadge359"
-      ],
-      {
-        "isExpanded" : false,
-        "isLocked" : true
-      },
-      [
-        "C8069472-BAAC-4DDB-B601-980AE0F7831F",
-        "Root",
-        "Huracan_EVO_RWD_Spyder_opt_22",
-        "Huracan_EVO_RWD04",
-        "BackLight101"
-      ],
-      {
-        "isExpanded" : false,
-        "isLocked" : true
-      },
-      [
-        "C8069472-BAAC-4DDB-B601-980AE0F7831F",
-        "Root",
         "Huracan_EVO_RWD_Spyder_opt_22"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "C8069472-BAAC-4DDB-B601-980AE0F7831F",
-        "Root"
       ],
       {
         "isExpanded" : true,
@@ -619,6 +603,38 @@
         "Root",
         "Huracan_EVO_RWD_Spyder_opt_22",
         "Huracan_EVO_RWD04",
+        "SteeringWheelBa347"
+      ],
+      {
+        "isExpanded" : false,
+        "isLocked" : true
+      },
+      [
+        "C8069472-BAAC-4DDB-B601-980AE0F7831F",
+        "Root",
+        "Huracan_EVO_RWD_Spyder_opt_22",
+        "Huracan_EVO_RWD04",
+        "FrontBadge359"
+      ],
+      {
+        "isExpanded" : false,
+        "isLocked" : true
+      },
+      [
+        "C8069472-BAAC-4DDB-B601-980AE0F7831F",
+        "Root",
+        "Huracan_EVO_RWD_Spyder_opt_22",
+        "Huracan_EVO_RWD04"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "C8069472-BAAC-4DDB-B601-980AE0F7831F",
+        "Root",
+        "Huracan_EVO_RWD_Spyder_opt_22",
+        "Huracan_EVO_RWD04",
         "HuLowMark365"
       ],
       {
@@ -630,7 +646,37 @@
         "Root",
         "Huracan_EVO_RWD_Spyder_opt_22",
         "Huracan_EVO_RWD04",
-        "SteeringWheelBa347"
+        "FrontLight85"
+      ],
+      {
+        "isExpanded" : false,
+        "isLocked" : true
+      },
+      [
+        "C8069472-BAAC-4DDB-B601-980AE0F7831F",
+        "Root",
+        "Huracan_EVO_RWD_Spyder_opt_22",
+        "Huracan_EVO_RWD04",
+        "BackLight101"
+      ],
+      {
+        "isExpanded" : false,
+        "isLocked" : true
+      },
+      [
+        "C8069472-BAAC-4DDB-B601-980AE0F7831F",
+        "Root"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "C8069472-BAAC-4DDB-B601-980AE0F7831F",
+        "Root",
+        "Huracan_EVO_RWD_Spyder_opt_22",
+        "Huracan_EVO_RWD04",
+        "Radiator62"
       ],
       {
         "isExpanded" : false,
@@ -642,33 +688,48 @@
     "objectMetadataList" : [
       [
         "D85DDB44-182D-4A50-94C7-6A1FB6EAC44B",
+        "Root"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D85DDB44-182D-4A50-94C7-6A1FB6EAC44B",
+        "Root",
+        "Rack",
+        "SimLabBlender"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D85DDB44-182D-4A50-94C7-6A1FB6EAC44B",
+        "Root",
+        "Rack"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D85DDB44-182D-4A50-94C7-6A1FB6EAC44B",
+        "Root",
+        "Rack1"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D85DDB44-182D-4A50-94C7-6A1FB6EAC44B",
         "Root",
         "Rack",
         "SimLabBlender",
         "New_2054",
-        "Module10_001"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "D85DDB44-182D-4A50-94C7-6A1FB6EAC44B",
-        "Root",
-        "Rack1",
-        "SimLabBlender",
-        "New_2054"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "D85DDB44-182D-4A50-94C7-6A1FB6EAC44B",
-        "Root",
-        "Rack",
-        "SimLabBlender",
-        "New_2054"
+        "Module10_001",
+        "cell10"
       ],
       {
         "isExpanded" : true,
@@ -690,7 +751,21 @@
       [
         "D85DDB44-182D-4A50-94C7-6A1FB6EAC44B",
         "Root",
-        "Rack"
+        "Rack1",
+        "SimLabBlender",
+        "New_2054"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D85DDB44-182D-4A50-94C7-6A1FB6EAC44B",
+        "Root",
+        "Rack",
+        "SimLabBlender",
+        "New_2054",
+        "Module10_001"
       ],
       {
         "isExpanded" : true,
@@ -711,33 +786,6 @@
       [
         "D85DDB44-182D-4A50-94C7-6A1FB6EAC44B",
         "Root",
-        "Rack",
-        "SimLabBlender"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "D85DDB44-182D-4A50-94C7-6A1FB6EAC44B",
-        "Root"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "D85DDB44-182D-4A50-94C7-6A1FB6EAC44B",
-        "Root",
-        "Rack1"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "D85DDB44-182D-4A50-94C7-6A1FB6EAC44B",
-        "Root",
         "Rack1",
         "SimLabBlender"
       ],
@@ -750,9 +798,7 @@
         "Root",
         "Rack",
         "SimLabBlender",
-        "New_2054",
-        "Module10_001",
-        "cell10"
+        "New_2054"
       ],
       {
         "isExpanded" : true,

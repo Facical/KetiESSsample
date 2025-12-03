@@ -11,16 +11,20 @@ This is a visionOS application for monitoring and controlling Energy Storage Sys
 ### Building the Project
 ```bash
 # Open in Xcode
-open KetiESSsample.xcodeproj
+open KetiESSsample2.xcodeproj
 
 # Build from command line (requires xcodebuild)
-xcodebuild -project KetiESSsample.xcodeproj -scheme KetiESSsample -destination 'platform=visionOS Simulator,name=Apple Vision Pro'
+xcodebuild -project KetiESSsample2.xcodeproj -scheme KetiESSsample -destination 'platform=visionOS Simulator,name=Apple Vision Pro'
+
+# Clean build
+xcodebuild clean -project KetiESSsample2.xcodeproj -scheme KetiESSsample
 ```
 
 ### Platform Requirements
-- **Target Platform**: visionOS 2.0+, macOS 15+, iOS 18+
-- **Swift Version**: 6.0+
-- **Dependencies**: RealityKit, SwiftUI, Charts, Combine
+- **Target Platform**: visionOS 2.6+
+- **Swift Version**: 5.0
+- **Xcode**: 26.0+
+- **Dependencies**: RealityKit, SwiftUI, Charts, Combine, ARKit
 
 ## Architecture Overview
 
@@ -32,7 +36,7 @@ The application follows a multi-space architecture with two main immersive exper
    - Entry point window displaying system controls and navigation
    - Manages immersive space lifecycle (opening/dismissing spaces)
    - Default window size: 1500x900 (window), 1200x900 (frame)
-   - Two primary buttons: ESSView toggle and RackView launcher
+   - Primary button: RackView launcher (opens AR view and auto-closes MainWindow)
    - Automatically dismisses previous immersive space when switching
 
 2. **ESSView** (Real-time Monitoring - `KetiESSsample/Views/ESSView.swift`)
@@ -48,7 +52,9 @@ The application follows a multi-space architecture with two main immersive exper
    - Immersive AR space for placing and exploring ESS rack models
    - **Asset-based**: Loads 3D models from Reality Composer Pro (.usdz files)
    - Two-phase interaction: placement mode → exploration mode
-   - Features: AR placement, callout labels with leader lines, exploded view
+   - Features: AR placement, hand tracking with pinch detection, ARKit object tracking
+   - Module drag-out with visual feedback, exploded view mode, problem analysis highlighting
+   - Two-hand rotation gesture support (dual pinch for rotation)
    - Memory-optimized collision detection (root bounding box only)
    - Billboard components for always-facing labels
 
@@ -70,6 +76,19 @@ The application follows a multi-space architecture with two main immersive exper
 - Currently unpopulated - designed to be filled after inspecting loaded Rack.usdz structure
 - Used by RackView for callout attachments and leader lines
 
+**RackDataModel** (`KetiESSsample/Models/RackDataModel.swift`)
+- Comprehensive data structures for CSV data integration
+- RackData: System-level metrics (voltage, current, SOC, SOH)
+- ModuleData: Per-module aggregates (temp range, voltage range, current, SOC/SOH)
+- CellData: Individual cell measurements (voltage, current, temp, SOC, SOH)
+- ModuleHealthStatus enum: normal/warning/critical/unknown with color mappings
+
+**ModuleInteractionState** (`KetiESSsample/Models/ModuleInteractionState.swift`)
+- Module state tracking for RackView hand interactions
+- ModuleState: Position tracking, drag state, pull-out distance (max 0.5m)
+- ModuleInteractionManager: Observable class for all module states
+- Supports hand tracking integration, collision detection for nearest module
+
 ### UI Components
 
 **ESSControlPanel** (`KetiESSsample/Views/ESSControlPanel.swift`)
@@ -79,9 +98,26 @@ The application follows a multi-space architecture with two main immersive exper
 - Temperature analysis with threshold indicators
 - Accessed via NavigationLink from MainView
 
+**RackDataPanel** (`KetiESSsample/Views/RackDataPanel.swift`)
+- Advanced data visualization panel with stream graphs
+- Tab-based: Rack (system metrics), Module (per-module params), Cell (detailed cell data)
+- Parameter selection enums: RackParameter (4), ModuleParameter (11 params)
+- Real-time plotting of selected parameters with time range controls
+
 **CalloutBubble** (`KetiESSsample/UI/CalloutBubble.swift`)
 - Reusable UI component for AR annotations in RackView
 - Displays title and detail text with material background
+
+**ModuleDataBubble** (`KetiESSsample/UI/ModuleDataBubble.swift`)
+- Data display for pulled-out modules showing temp, voltage, current, SOC/SOH
+- Status indicators for each measurement category
+- Return button to place module back in rack
+
+**ControlPanelAttachment** (`KetiESSsample/UI/ControlPanelAttachment.swift`)
+- 3D space-attached control panel for RackView
+- Placement section (before placement) and control section (after placement)
+- Status display: module count, pulled-out count, problem count
+- Callbacks: place, reset modules, reposition, close, object tracking toggle
 
 **Immersive Space Configuration**
 - ESSView: Mixed immersion style, registered as "ESSView"
@@ -116,11 +152,36 @@ Loads pre-built 3D models from Reality Composer Pro:
 - Billboard components for info bubbles (always face user)
 - Collision shapes for gesture targeting
 
+**Problem Analysis Mode** (RackView)
+- Module status colors: Normal (original), Warning (orange), Critical (red)
+- Multi-metric threshold support: SoC, SoH, Current, Voltage, Temperature
+- Temperature inverse logic (higher = more dangerous)
+- Cell-level coloring when module is pulled out (48 cells per module)
+- Automatic material restoration when module returns to rack
+
+**Module-Panel Visual Connection**
+- Highlight boxes: Translucent highlight on selected module in Module tab
+- Leader lines: 3D lines connecting selected module to data panel
+- Dynamic updates: Lines track module and panel position changes
+
 ### Extensions
 
 **SIMD3 Extension** (`KetiESSsample/Extensions/SIMD3.swift`)
 - Custom `.grounded` property: Projects 3D translations to ground plane (zeros Y-axis)
 - Used for horizontal-only object movement in both ESSView and RackView drag gestures
+
+### Utilities
+
+**CSVParser** (`KetiESSsample/Utilities/CSVParser.swift`)
+- High-performance CSV parsing with manual date parsing (10x faster than DateFormatter)
+- Thread-safe date cache (NSLock protected) for performance
+- Supports formats: "2025.7.1 0:00" (CSV) and "yyyy-MM-dd HH:mm:ss"
+
+**ModuleMapping** (`KetiESSsample/Utilities/ModuleMapping.swift`)
+- ID mapping between entity names and CSV module IDs
+- Constants: 11 modules, 48 cells per module
+- Transformations: Entity name ↔ CSV ID (Module1_001 ↔ M01), index conversions
+- Lookup table: `allModuleMappings` for all (index, csvId, entityName) tuples
 
 **Entity Extensions** (RackView.swift)
 - `forEachDescendant(_:)`: Recursive traversal of entity hierarchy
@@ -137,13 +198,21 @@ Loads pre-built 3D models from Reality Composer Pro:
 - Contains Rack.usdz and Rack.usda models
 - All large asset files (*.usdz, *.rcproject, *.reality, *.zip) tracked with Git LFS
 
+### Data Files
+
+**Location**: `DummyData/`
+- `Rack_Data_1s.csv`: System-level rack metrics
+- `Module_Data_M01_1s.csv`: Module M01 cell data
+- `Cell_Data_M01_1s.csv`: Detailed cell telemetry (19MB, Git LFS tracked)
+
 ## Git LFS Configuration
 
-Large 3D assets are tracked with Git LFS:
-- *.usdz files
-- *.rcproject files
-- *.reality files
-- *.zip files
+Large assets tracked with Git LFS (configured in `.gitattributes`):
+- `*.usdz` files
+- `*.rcproject` files
+- `*.reality` files
+- `*.zip` files
+- Large CSV data files in `DummyData/`
 
 ## Code Patterns
 
@@ -167,6 +236,12 @@ attachment.components.set(BillboardComponent())
 - Reset to nil on gesture end
 - Apply transformations relative to scene coordinate space
 
+### Hand Tracking Pattern (RackView)
+- ARKit hand anchors with left/right chirality detection
+- Pinch detection via thumb tip to index tip distance (<0.03m threshold)
+- Two-hand rotation via pinch angle tracking
+- Module drag-out triggered by pinch on nearest module collision
+
 ### Navigation Flow
 - Window → NavigationStack → MainView
 - NavigationLink for 2D dashboard (ESSControlPanel)
@@ -178,10 +253,10 @@ attachment.components.set(BillboardComponent())
 
 ### Modifying Battery Module Count
 When changing the number of battery modules (currently 10):
-1. Update module creation loop in `ESSSystemModel.init()` - line 53
-2. Update attachment ForEach range in `ESSView.body` - line 97
-3. Update attachment positioning loop in RealityView content - line 72
-4. Adjust grid positioning calculations in `createESSCabinet()` - line 204
+1. Update module creation loop in `ESSSystemModel.init()` (search: `for i in 0..<10`)
+2. Update attachment ForEach range in `ESSView.body`
+3. Update attachment positioning loop in RealityView content
+4. Adjust grid positioning calculations in `createESSCabinet()`
 
 ### Adding New Immersive Spaces
 New immersive spaces must be registered in `EntryPoint.swift`:
@@ -194,8 +269,8 @@ ImmersiveSpace(id: "NewSpaceID") {
 Then update MainView to handle opening/dismissing the new space.
 
 ### Real-time Data Configuration
-- Update frequency: Change Timer interval in `ESSSystemModel.startMonitoring()` (default: 0.5s) - line 75
-- Chart history length: Fixed at 50 data points, modify buffer management in `updateSystemData()` - lines 113-120
+- Update frequency: Change Timer interval in `ESSSystemModel.startMonitoring()` (default: 0.5s)
+- Chart history length: Fixed at 50 data points, modify buffer management in `updateSystemData()`
 
 ### Working with Rack Models
 **Adding callouts to RackView**:
@@ -213,3 +288,10 @@ Then update MainView to handle opening/dismissing the new space.
 - Export assets as .usdz or .reality files
 - Large assets auto-tracked by Git LFS (.gitattributes configured)
 - Access via `realityKitContentBundle` and `Entity(named:in:)`
+
+### Adding CSV Data Integration
+1. Place CSV files in `DummyData/` folder
+2. Parse using `CSVParser` utility (supports date caching for performance)
+3. Map module/cell IDs using `ModuleMapping` utility
+4. Populate `RackDataModel` structures for visualization
+5. Display in `RackDataPanel` stream graphs

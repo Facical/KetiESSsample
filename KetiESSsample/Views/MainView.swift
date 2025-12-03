@@ -5,6 +5,7 @@ import SwiftUI
 struct MainView: View {
     @Environment(\.openImmersiveSpace) var openImmersiveSpace
     @Environment(\.dismissImmersiveSpace) var dismissImmersiveSpace
+    @Environment(\.dismissWindow) var dismissWindow
     @State private var immersiveSpaceIsShown = false
 
     var body: some View {
@@ -33,31 +34,35 @@ struct MainView: View {
             VStack(spacing: 20) {
                 Button(action: {
                     Task {
-                        if immersiveSpaceIsShown {
-                            await dismissImmersiveSpace()
-                            immersiveSpaceIsShown = false
-                        } else {
-                            // Dismiss any other spaces first
-                            await dismissImmersiveSpace()
-                            try? await Task.sleep(nanoseconds: 100_000_000)
+                        // Dismiss any other spaces first
+                        await dismissImmersiveSpace()
+                        try? await Task.sleep(nanoseconds: 100_000_000)
 
-                            // Open RackView
-                            await openImmersiveSpace(id: "RackView")
+                        // Open RackView
+                        let result = await openImmersiveSpace(id: "RackView")
+
+                        switch result {
+                        case .opened:
                             immersiveSpaceIsShown = true
+                            // 윈도우 자동 닫기 (컨트롤은 3D Attachment에서 처리)
+                            dismissWindow(id: "MainWindow")
+                        case .userCancelled, .error:
+                            immersiveSpaceIsShown = false
+                        @unknown default:
+                            immersiveSpaceIsShown = false
                         }
                     }
                 }) {
                     VStack(spacing: 15) {
-                        Image(systemName: immersiveSpaceIsShown ? "xmark.circle.fill" : "server.rack")
+                        Image(systemName: "server.rack")
                             .font(.system(size: 60))
                             .foregroundStyle(.linearGradient(
                                 colors: [.green, .cyan],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             ))
-                            .symbolEffect(.pulse, value: immersiveSpaceIsShown)
 
-                        Text(immersiveSpaceIsShown ? "Close XR View" : "View ESS Rack in AR")
+                        Text("View ESS Rack in AR")
                             .font(.title)
                             .fontWeight(.bold)
 
@@ -82,28 +87,26 @@ struct MainView: View {
                     )
                 }
                 .buttonStyle(.plain)
-                .scaleEffect(immersiveSpaceIsShown ? 0.95 : 1.0)
-                .animation(.easeInOut, value: immersiveSpaceIsShown)
             }
             .padding(.horizontal)
-                
+
+            Spacer()
+
+            // Footer Info
+            HStack {
+                Label("System Online", systemImage: "circle.fill")
+                    .font(.caption)
+                    .foregroundStyle(.green)
+
                 Spacer()
-                
-                // Footer Info
-                HStack {
-                    Label("System Online", systemImage: "circle.fill")
-                        .font(.caption)
-                        .foregroundStyle(.green)
-                    
-                    Spacer()
-                    
-                    Text("KETI ESS v1.0")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.horizontal)
-                .padding(.bottom)
+
+                Text("KETI ESS v1.0")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
             }
+            .padding(.horizontal)
+            .padding(.bottom)
+        }
         .frame(width: 1200, height: 900)
     }
 }

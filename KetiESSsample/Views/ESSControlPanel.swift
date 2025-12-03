@@ -104,26 +104,13 @@ struct OverviewTab: View {
                     .font(.headline)
                     .padding(.horizontal)
                 
-                Chart {
-                    ForEach(Array(systemModel.powerHistory.enumerated()), id: \.offset) { index, power in
-                        LineMark(
-                            x: .value("Time", index),
-                            y: .value("Power", power)
-                        )
-                        .foregroundStyle(.blue)
-                        .interpolationMethod(.catmullRom)
-                        
-                        AreaMark(
-                            x: .value("Time", index),
-                            y: .value("Power", power)
-                        )
-                        .foregroundStyle(.linearGradient(
-                            colors: [.blue.opacity(0.3), .blue.opacity(0.1)],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        ))
-                        .interpolationMethod(.catmullRom)
-                    }
+                Chart(Array(systemModel.powerHistory.enumerated()), id: \.offset) { index, power in
+                    LineMark(
+                        x: .value("Time", index),
+                        y: .value("Power", power)
+                    )
+                    .foregroundStyle(.blue)
+                    .interpolationMethod(.catmullRom)
                 }
                 .frame(height: 200)
                 .padding()
@@ -200,15 +187,13 @@ struct PowerTab: View {
                 Text("Voltage Trend")
                     .font(.headline)
                 
-                Chart {
-                    ForEach(Array(systemModel.voltageHistory.enumerated()), id: \.offset) { index, voltage in
-                        LineMark(
-                            x: .value("Time", index),
-                            y: .value("Voltage", voltage)
-                        )
-                        .foregroundStyle(.green)
-                        .interpolationMethod(.catmullRom)
-                    }
+                Chart(Array(systemModel.voltageHistory.enumerated()), id: \.offset) { index, voltage in
+                    LineMark(
+                        x: .value("Time", index),
+                        y: .value("Voltage", voltage)
+                    )
+                    .foregroundStyle(.green)
+                    .interpolationMethod(.catmullRom)
                 }
                 .frame(height: 200)
                 .padding()
@@ -246,19 +231,13 @@ struct AnalyticsTab: View {
                 Text("Temperature Analysis")
                     .font(.headline)
                 
-                Chart {
-                    ForEach(Array(systemModel.temperatureHistory.enumerated()), id: \.offset) { index, temp in
-                        LineMark(
-                            x: .value("Time", index),
-                            y: .value("Temperature", temp)
-                        )
-                        .foregroundStyle(.orange)
-                        .interpolationMethod(.catmullRom)
-                        
-                        RuleMark(y: .value("Threshold", 35))
-                            .foregroundStyle(.red.opacity(0.3))
-                            .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
-                    }
+                Chart(Array(systemModel.temperatureHistory.enumerated()), id: \.offset) { index, temp in
+                    LineMark(
+                        x: .value("Time", index),
+                        y: .value("Temperature", temp)
+                    )
+                    .foregroundStyle(.orange)
+                    .interpolationMethod(.catmullRom)
                 }
                 .frame(height: 200)
                 .padding()

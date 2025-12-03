@@ -1,0 +1,806 @@
+================================================================================
+            Vision Pro + 웹 연동 가이드
+            ESS 모니터링 시스템 실시간 동기화
+================================================================================
+
+작성일: 2024년
+프로젝트: KetiESSsample2 (visionOS ESS 모니터링 앱)
+
+--------------------------------------------------------------------------------
+1. 개요
+--------------------------------------------------------------------------------
+
+Vision Pro에서 보고 있는 ESS 3D 뷰를 웹 브라우저에서도 실시간으로 동일하게
+볼 수 있도록 연동하는 방법을 설명합니다.
+
+목표:
+- Vision Pro 사용자가 보는 3D 뷰를 웹에서 실시간 확인
+- 웹에서는 조작 없이 관찰만 가능 (View-Only)
+- 실시간 ESS 데이터 동기화
+
+
+--------------------------------------------------------------------------------
+2. 접근 방식 비교
+--------------------------------------------------------------------------------
+
+┌─────────────────┬──────────┬──────────┬─────────────────────────────────────┐
+│ 방식            │ 난이도   │ 추천도   │ 설명                                │
+├─────────────────┼──────────┼──────────┼─────────────────────────────────────┤
+│ 비디오 스트리밍 │ 중       │ ★★☆☆☆  │ 화면 캡처 후 WebRTC 전송            │
+│                 │          │          │ visionOS 화면캡처 API 제약 있음     │
+├─────────────────┼──────────┼──────────┼─────────────────────────────────────┤
+│ 상태 동기화 +   │ 상       │ ★★★★★  │ 상태만 전송, 웹에서 3D 렌더링       │
+│ 웹 3D 렌더링    │          │          │ 가장 유연하고 확장성 좋음 (권장)    │
+├─────────────────┼──────────┼──────────┼─────────────────────────────────────┤
+│ SharePlay       │ 하       │ ★★★☆☆  │ Apple 기기 간만 가능                │
+│                 │          │          │ 웹 브라우저 지원 안됨               │
+└─────────────────┴──────────┴──────────┴─────────────────────────────────────┘
+
+
+================================================================================
+3. 권장 방식: 상태 동기화 + 웹 3D 렌더링 (상세)
+================================================================================
+
+--------------------------------------------------------------------------------
+3.1 전체 시스템 아키텍처
+--------------------------------------------------------------------------------
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              백엔드 서버                                     │
+│  ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐       │
+│  │   ESS 데이터 API  │  │   상태 동기화      │  │   WebSocket       │       │
+│  │   (REST)          │  │   브로커           │  │   서버            │       │
+│  │                   │  │                   │  │                   │       │
+│  │ - 전압/전류 데이터│  │ - 뷰 상태 저장    │  │ - 실시간 브로드캐스트│     │
+│  │ - 온도 데이터     │  │ - 클라이언트 관리 │  │ - 연결 관리       │       │
+│  │ - SoC/SoH 데이터  │  │ - 상태 변경 감지  │  │ - 메시지 라우팅   │       │
+│  └───────────────────┘  └───────────────────┘  └───────────────────┘       │
+└─────────────────────────────────────────────────────────────────────────────┘
+           │                       │                       │
+           │              WebSocket 연결                   │
+           │         ┌─────────────┴─────────────┐        │
+           │         │                           │        │
+           ▼         ▼                           ▼        ▼
+┌─────────────────────────┐           ┌─────────────────────────┐
+│      Vision Pro         │           │      웹 브라우저         │
+│  ┌───────────────────┐  │           │  ┌───────────────────┐  │
+│  │   RealityKit      │  │           │  │   Three.js        │  │
+│  │   3D 렌더링       │  │           │  │   3D 렌더링       │  │
+│  └───────────────────┘  │           │  └───────────────────┘  │
+│  ┌───────────────────┐  │  상태     │  ┌───────────────────┐  │
+│  │   SwiftUI UI      │──┼──동기화──▶│  │   React UI        │  │
+│  └───────────────────┘  │           │  └───────────────────┘  │
+│  ┌───────────────────┐  │           │  ┌───────────────────┐  │
+│  │   WebSocket       │◀─┼──────────▶│  │   WebSocket       │  │
+│  │   클라이언트      │  │           │  │   클라이언트      │  │
+│  └───────────────────┘  │           │  └───────────────────┘  │
+└─────────────────────────┘           └─────────────────────────┘
+      [마스터: 조작 가능]                   [슬레이브: 관찰만]
+
+
+--------------------------------------------------------------------------------
+3.2 기술 스택 매핑
+--------------------------------------------------------------------------------
+
+┌────────────────────┬─────────────────────┬─────────────────────┐
+│ 컴포넌트           │ Vision Pro          │ 웹                  │
+├────────────────────┼─────────────────────┼─────────────────────┤
+│ 3D 엔진            │ RealityKit          │ Three.js            │
+│                    │                     │ (또는 Babylon.js)   │
+├────────────────────┼─────────────────────┼─────────────────────┤
+│ 3D 모델 포맷       │ .usdz               │ .glTF / .glb        │
+├────────────────────┼─────────────────────┼─────────────────────┤
+│ UI 프레임워크      │ SwiftUI             │ React / Vue         │
+├────────────────────┼─────────────────────┼─────────────────────┤
+│ 차트 라이브러리    │ Swift Charts        │ Chart.js / D3.js    │
+├────────────────────┼─────────────────────┼─────────────────────┤
+│ 실시간 통신        │ URLSessionWebSocket │ WebSocket API       │
+├────────────────────┼─────────────────────┼─────────────────────┤
+│ 상태 관리          │ @Observable         │ Redux / Zustand     │
+└────────────────────┴─────────────────────┴─────────────────────┘
+
+
+--------------------------------------------------------------------------------
+3.3 동기화할 상태 데이터 정의
+--------------------------------------------------------------------------------
+
+[A] 뷰 상태 (View State) - Vision Pro → 웹으로 전송
+
+{
+    "type": "viewState",
+    "timestamp": 1701456789000,
+    "camera": {
+        "position": { "x": 0.0, "y": 1.6, "z": 2.0 },
+        "rotation": { "x": -15.0, "y": 0.0, "z": 0.0 },
+        "fov": 60.0
+    },
+    "rack": {
+        "position": { "x": 0.0, "y": 0.0, "z": -1.5 },
+        "rotation": { "x": 0.0, "y": 45.0, "z": 0.0 },
+        "scale": 0.8
+    },
+    "interaction": {
+        "selectedModuleIndex": 3,
+        "pulledModules": [
+            { "index": 3, "pullDistance": 0.35 },
+            { "index": 7, "pullDistance": 0.5 }
+        ],
+        "highlightedModule": 3
+    },
+    "ui": {
+        "problemAnalysisEnabled": true,
+        "problemMetric": "minSoC",
+        "labelsVisible": true,
+        "dataPanelVisible": true,
+        "selectedTab": "module",
+        "selectedParameter": "avgTemp"
+    }
+}
+
+
+[B] ESS 실시간 데이터 - 서버 → 양쪽 클라이언트로 브로드캐스트
+
+{
+    "type": "essData",
+    "timestamp": 1701456789000,
+    "rack": {
+        "voltage": 720.5,
+        "current": 125.3,
+        "soc": 78.5,
+        "soh": 95.2
+    },
+    "modules": [
+        {
+            "index": 0,
+            "id": "M01",
+            "avgTemp": 32.5,
+            "maxTemp": 35.2,
+            "minTemp": 30.1,
+            "avgVoltage": 65.5,
+            "maxVoltage": 66.2,
+            "minVoltage": 64.8,
+            "current": 11.5,
+            "soc": 78.5,
+            "soh": 95.0,
+            "status": "normal"
+        },
+        // ... 나머지 10개 모듈
+    ],
+    "cells": {
+        "M01": [
+            { "index": 0, "voltage": 3.65, "temp": 32.1, "soc": 78.2 },
+            // ... 47개 셀
+        ]
+        // ... 나머지 모듈의 셀 데이터
+    }
+}
+
+
+[C] 이벤트 메시지 - 특정 액션 발생 시
+
+{
+    "type": "event",
+    "event": "modulePulled",      // modulePulled, moduleReturned, modeChanged 등
+    "data": {
+        "moduleIndex": 3,
+        "timestamp": 1701456789000
+    }
+}
+
+
+--------------------------------------------------------------------------------
+3.4 백엔드 서버 구현 (Node.js 예시)
+--------------------------------------------------------------------------------
+
+[파일: server.js]
+
+const express = require('express');
+const { WebSocketServer } = require('ws');
+const http = require('http');
+
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server });
+
+// 현재 뷰 상태 저장
+let currentViewState = null;
+
+// 연결된 클라이언트 관리
+const clients = {
+    visionPro: null,
+    web: new Set()
+};
+
+wss.on('connection', (ws, req) => {
+    const clientType = req.url.includes('visionpro') ? 'visionPro' : 'web';
+
+    if (clientType === 'visionPro') {
+        clients.visionPro = ws;
+        console.log('Vision Pro 연결됨');
+    } else {
+        clients.web.add(ws);
+        console.log(`웹 클라이언트 연결됨 (총 ${clients.web.size}개)`);
+
+        // 새 웹 클라이언트에게 현재 상태 전송
+        if (currentViewState) {
+            ws.send(JSON.stringify(currentViewState));
+        }
+    }
+
+    ws.on('message', (data) => {
+        const message = JSON.parse(data);
+
+        // Vision Pro에서 온 상태 업데이트
+        if (clientType === 'visionPro' && message.type === 'viewState') {
+            currentViewState = message;
+
+            // 모든 웹 클라이언트에게 브로드캐스트
+            clients.web.forEach(client => {
+                if (client.readyState === 1) { // OPEN
+                    client.send(JSON.stringify(message));
+                }
+            });
+        }
+    });
+
+    ws.on('close', () => {
+        if (clientType === 'visionPro') {
+            clients.visionPro = null;
+        } else {
+            clients.web.delete(ws);
+        }
+    });
+});
+
+// ESS 데이터 API (기존 백엔드 연동용)
+app.get('/api/ess/current', (req, res) => {
+    // 실제로는 ESS 시스템에서 데이터 조회
+    res.json({ /* ESS 데이터 */ });
+});
+
+server.listen(3000, () => {
+    console.log('서버 시작: http://localhost:3000');
+});
+
+
+--------------------------------------------------------------------------------
+3.5 Vision Pro 앱 수정 사항
+--------------------------------------------------------------------------------
+
+[파일: WebSyncManager.swift] - 새로 추가
+
+import Foundation
+
+class WebSyncManager: ObservableObject {
+    private var webSocket: URLSessionWebSocketTask?
+    private let serverURL = URL(string: "wss://your-server.com/ws?client=visionpro")!
+
+    @Published var isConnected = false
+
+    func connect() {
+        let session = URLSession(configuration: .default)
+        webSocket = session.webSocketTask(with: serverURL)
+        webSocket?.resume()
+        isConnected = true
+        receiveMessage()
+    }
+
+    func disconnect() {
+        webSocket?.cancel(with: .normalClosure, reason: nil)
+        isConnected = false
+    }
+
+    // 뷰 상태 전송
+    func sendViewState(_ state: ViewState) {
+        guard let webSocket = webSocket else { return }
+
+        let encoder = JSONEncoder()
+        if let data = try? encoder.encode(state),
+           let jsonString = String(data: data, encoding: .utf8) {
+            let message = URLSessionWebSocketTask.Message.string(jsonString)
+            webSocket.send(message) { error in
+                if let error = error {
+                    print("전송 오류: \(error)")
+                }
+            }
+        }
+    }
+
+    private func receiveMessage() {
+        webSocket?.receive { [weak self] result in
+            switch result {
+            case .success(let message):
+                // 서버로부터 메시지 수신 처리 (필요시)
+                self?.receiveMessage() // 계속 수신 대기
+            case .failure(let error):
+                print("수신 오류: \(error)")
+            }
+        }
+    }
+}
+
+
+[파일: ViewState.swift] - 새로 추가
+
+import Foundation
+import simd
+
+struct ViewState: Codable {
+    let type: String = "viewState"
+    let timestamp: Int64
+    let camera: CameraState
+    let rack: RackState
+    let interaction: InteractionState
+    let ui: UIState
+
+    struct CameraState: Codable {
+        let position: Vector3
+        let rotation: Vector3
+    }
+
+    struct RackState: Codable {
+        let position: Vector3
+        let rotation: Vector3
+        let scale: Float
+    }
+
+    struct InteractionState: Codable {
+        let selectedModuleIndex: Int?
+        let pulledModules: [PulledModule]
+    }
+
+    struct PulledModule: Codable {
+        let index: Int
+        let pullDistance: Float
+    }
+
+    struct UIState: Codable {
+        let problemAnalysisEnabled: Bool
+        let problemMetric: String
+        let labelsVisible: Bool
+        let selectedTab: String
+    }
+
+    struct Vector3: Codable {
+        let x: Float
+        let y: Float
+        let z: Float
+
+        init(_ simd: SIMD3<Float>) {
+            self.x = simd.x
+            self.y = simd.y
+            self.z = simd.z
+        }
+    }
+}
+
+
+[RackView.swift 수정 - 상태 변경 시 동기화 호출]
+
+// 기존 RackView에 추가
+@StateObject private var syncManager = WebSyncManager()
+
+// 상태 변경 감지 및 전송 (예: 모듈 꺼낼 때)
+func onModulePulled(moduleIndex: Int, distance: Float) {
+    // 기존 로직...
+
+    // 웹으로 상태 동기화
+    let state = buildCurrentViewState()
+    syncManager.sendViewState(state)
+}
+
+// 현재 뷰 상태 빌드
+func buildCurrentViewState() -> ViewState {
+    return ViewState(
+        timestamp: Int64(Date().timeIntervalSince1970 * 1000),
+        camera: ViewState.CameraState(
+            position: ViewState.Vector3(cameraPosition),
+            rotation: ViewState.Vector3(cameraRotation)
+        ),
+        rack: ViewState.RackState(
+            position: ViewState.Vector3(rackEntity?.position ?? .zero),
+            rotation: ViewState.Vector3(/* rotation */),
+            scale: rackEntity?.scale.x ?? 1.0
+        ),
+        interaction: ViewState.InteractionState(
+            selectedModuleIndex: selectedModuleIndex,
+            pulledModules: interactionManager.pulledModules.map {
+                ViewState.PulledModule(index: $0.index, pullDistance: $0.distance)
+            }
+        ),
+        ui: ViewState.UIState(
+            problemAnalysisEnabled: isProblemAnalysisEnabled,
+            problemMetric: selectedProblemMetric.rawValue,
+            labelsVisible: showLabels,
+            selectedTab: selectedTab.rawValue
+        )
+    )
+}
+
+
+--------------------------------------------------------------------------------
+3.6 웹 클라이언트 구현 (React + Three.js)
+--------------------------------------------------------------------------------
+
+[프로젝트 구조]
+
+web-viewer/
+├── public/
+│   └── models/
+│       └── rack.glb          # USDZ에서 변환한 3D 모델
+├── src/
+│   ├── components/
+│   │   ├── ESSViewer.tsx     # 메인 3D 뷰어
+│   │   ├── RackModel.tsx     # 3D 랙 모델
+│   │   ├── ModuleModel.tsx   # 개별 모듈 컴포넌트
+│   │   ├── DataPanel.tsx     # 데이터 패널 UI
+│   │   └── StatusBar.tsx     # 상태 표시
+│   ├── hooks/
+│   │   └── useWebSocket.ts   # WebSocket 훅
+│   ├── stores/
+│   │   └── viewStateStore.ts # 상태 관리
+│   └── App.tsx
+└── package.json
+
+
+[파일: src/hooks/useWebSocket.ts]
+
+import { useEffect, useRef, useCallback } from 'react';
+import { useViewStateStore } from '../stores/viewStateStore';
+
+export function useWebSocket(serverUrl: string) {
+    const ws = useRef<WebSocket | null>(null);
+    const { setViewState, setESSData, setConnected } = useViewStateStore();
+
+    useEffect(() => {
+        ws.current = new WebSocket(serverUrl);
+
+        ws.current.onopen = () => {
+            console.log('서버 연결됨');
+            setConnected(true);
+        };
+
+        ws.current.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+
+            switch (message.type) {
+                case 'viewState':
+                    setViewState(message);
+                    break;
+                case 'essData':
+                    setESSData(message);
+                    break;
+            }
+        };
+
+        ws.current.onclose = () => {
+            setConnected(false);
+            // 재연결 로직
+            setTimeout(() => {
+                // reconnect
+            }, 3000);
+        };
+
+        return () => {
+            ws.current?.close();
+        };
+    }, [serverUrl]);
+
+    return { isConnected: ws.current?.readyState === WebSocket.OPEN };
+}
+
+
+[파일: src/stores/viewStateStore.ts]
+
+import { create } from 'zustand';
+
+interface ViewState {
+    camera: {
+        position: { x: number; y: number; z: number };
+        rotation: { x: number; y: number; z: number };
+    };
+    rack: {
+        position: { x: number; y: number; z: number };
+        rotation: { x: number; y: number; z: number };
+        scale: number;
+    };
+    interaction: {
+        selectedModuleIndex: number | null;
+        pulledModules: { index: number; pullDistance: number }[];
+    };
+    ui: {
+        problemAnalysisEnabled: boolean;
+        labelsVisible: boolean;
+    };
+}
+
+interface Store {
+    viewState: ViewState | null;
+    essData: any;
+    isConnected: boolean;
+    setViewState: (state: ViewState) => void;
+    setESSData: (data: any) => void;
+    setConnected: (connected: boolean) => void;
+}
+
+export const useViewStateStore = create<Store>((set) => ({
+    viewState: null,
+    essData: null,
+    isConnected: false,
+    setViewState: (state) => set({ viewState: state }),
+    setESSData: (data) => set({ essData: data }),
+    setConnected: (connected) => set({ isConnected: connected }),
+}));
+
+
+[파일: src/components/ESSViewer.tsx]
+
+import React, { useRef, useEffect } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { OrbitControls, useGLTF } from '@react-three/drei';
+import { useViewStateStore } from '../stores/viewStateStore';
+
+// 카메라 동기화 컴포넌트
+function SyncedCamera() {
+    const { camera } = useThree();
+    const viewState = useViewStateStore((state) => state.viewState);
+
+    useFrame(() => {
+        if (viewState?.camera) {
+            camera.position.set(
+                viewState.camera.position.x,
+                viewState.camera.position.y,
+                viewState.camera.position.z
+            );
+            camera.rotation.set(
+                viewState.camera.rotation.x * Math.PI / 180,
+                viewState.camera.rotation.y * Math.PI / 180,
+                viewState.camera.rotation.z * Math.PI / 180
+            );
+        }
+    });
+
+    return null;
+}
+
+// ESS 랙 모델 컴포넌트
+function RackModel() {
+    const { scene } = useGLTF('/models/rack.glb');
+    const rackRef = useRef();
+    const viewState = useViewStateStore((state) => state.viewState);
+
+    useFrame(() => {
+        if (rackRef.current && viewState?.rack) {
+            rackRef.current.position.set(
+                viewState.rack.position.x,
+                viewState.rack.position.y,
+                viewState.rack.position.z
+            );
+            rackRef.current.scale.setScalar(viewState.rack.scale);
+        }
+    });
+
+    return <primitive ref={rackRef} object={scene} />;
+}
+
+// 모듈 상태 시각화
+function ModuleHighlights() {
+    const viewState = useViewStateStore((state) => state.viewState);
+    const essData = useViewStateStore((state) => state.essData);
+
+    if (!viewState?.interaction?.pulledModules) return null;
+
+    return (
+        <>
+            {viewState.interaction.pulledModules.map((module) => {
+                const moduleData = essData?.modules?.[module.index];
+                const status = moduleData?.status || 'normal';
+                const color = status === 'critical' ? '#ff0000'
+                            : status === 'warning' ? '#ffa500'
+                            : '#00ff00';
+
+                return (
+                    <mesh
+                        key={module.index}
+                        position={[
+                            /* 모듈 위치 계산 */
+                            0,
+                            module.index * 0.15,
+                            module.pullDistance
+                        ]}
+                    >
+                        <boxGeometry args={[0.3, 0.1, 0.4]} />
+                        <meshStandardMaterial color={color} />
+                    </mesh>
+                );
+            })}
+        </>
+    );
+}
+
+// 메인 뷰어 컴포넌트
+export function ESSViewer() {
+    return (
+        <div style={{ width: '100vw', height: '100vh' }}>
+            <Canvas>
+                <ambientLight intensity={0.5} />
+                <directionalLight position={[10, 10, 5]} />
+
+                <SyncedCamera />
+                <RackModel />
+                <ModuleHighlights />
+
+                {/* 카메라 자유 조작은 비활성화 (동기화 모드) */}
+                {/* <OrbitControls /> */}
+            </Canvas>
+        </div>
+    );
+}
+
+
+[파일: src/App.tsx]
+
+import React from 'react';
+import { ESSViewer } from './components/ESSViewer';
+import { DataPanel } from './components/DataPanel';
+import { StatusBar } from './components/StatusBar';
+import { useWebSocket } from './hooks/useWebSocket';
+
+function App() {
+    useWebSocket('wss://your-server.com/ws?client=web');
+
+    return (
+        <div className="app">
+            <StatusBar />
+            <div className="main-content">
+                <ESSViewer />
+                <DataPanel />
+            </div>
+        </div>
+    );
+}
+
+export default App;
+
+
+--------------------------------------------------------------------------------
+3.7 3D 모델 변환 (USDZ → glTF)
+--------------------------------------------------------------------------------
+
+Vision Pro용 .usdz 모델을 웹용 .glTF/.glb로 변환해야 합니다.
+
+[방법 1: Reality Converter (macOS)]
+1. Apple Developer에서 Reality Converter 다운로드
+2. .usdz 파일 열기
+3. Export → glTF 선택
+
+[방법 2: Blender]
+1. Blender 설치 (무료)
+2. File → Import → USD 선택
+3. .usdz 파일 열기
+4. File → Export → glTF 2.0 선택
+
+[방법 3: 온라인 변환기]
+- https://products.aspose.app/3d/conversion/usdz-to-gltf
+- 민감한 모델은 로컬 도구 사용 권장
+
+[주의사항]
+- Material/Texture가 제대로 변환되었는지 확인
+- 모델 스케일 확인 (단위 차이 있을 수 있음)
+- 모듈별 Entity 이름이 유지되는지 확인 (인터랙션용)
+
+
+--------------------------------------------------------------------------------
+3.8 배포 아키텍처
+--------------------------------------------------------------------------------
+
+[개발 환경]
+
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│ Vision Pro  │────▶│  localhost  │◀────│   Browser   │
+│ (Simulator) │     │   :3000     │     │             │
+└─────────────┘     └─────────────┘     └─────────────┘
+
+
+[프로덕션 환경]
+
+┌─────────────┐     ┌─────────────────────────┐     ┌─────────────┐
+│ Vision Pro  │────▶│    Cloud Server         │◀────│   Browser   │
+│ (실기기)    │     │  (AWS/GCP/Azure)        │     │  (어디서든) │
+└─────────────┘     │                         │     └─────────────┘
+                    │  ┌─────────────────┐   │
+                    │  │ WebSocket 서버  │   │
+                    │  │ (Node.js)       │   │
+                    │  └─────────────────┘   │
+                    │  ┌─────────────────┐   │
+                    │  │ ESS 데이터 API  │   │
+                    │  │ (실제 ESS 연동) │   │
+                    │  └─────────────────┘   │
+                    │  ┌─────────────────┐   │
+                    │  │ 웹 정적 파일    │   │
+                    │  │ (React 빌드)    │   │
+                    │  └─────────────────┘   │
+                    └─────────────────────────┘
+
+
+================================================================================
+4. 구현 단계별 로드맵
+================================================================================
+
+[Phase 1: 기반 구축]
+- 백엔드 서버 세팅 (Node.js + WebSocket)
+- Vision Pro 앱에 WebSyncManager 추가
+- 기본 연결 테스트
+
+[Phase 2: 상태 동기화]
+- ViewState 데이터 구조 정의
+- Vision Pro → 서버 상태 전송 구현
+- 서버 → 웹 브로드캐스트 구현
+
+[Phase 3: 웹 뷰어 개발]
+- React + Three.js 프로젝트 세팅
+- 3D 모델 변환 및 로드
+- 상태 기반 렌더링 구현
+
+[Phase 4: ESS 데이터 통합]
+- 실시간 ESS 데이터 스트리밍
+- 데이터 패널 UI 구현
+- Problem Analysis 시각화
+
+[Phase 5: 최적화 및 배포]
+- 네트워크 지연 최적화
+- 보안 (인증, HTTPS)
+- 클라우드 배포
+
+
+================================================================================
+5. 고려사항 및 제약
+================================================================================
+
+[성능]
+- WebSocket 메시지 주기: 30-60fps 권장 (약 16-33ms 간격)
+- 대역폭: 상태 데이터만 전송 시 약 1-5KB/초
+- 지연: 같은 네트워크 내 <50ms 목표
+
+[보안]
+- WSS (WebSocket Secure) 사용 필수
+- 인증 토큰 기반 연결 관리
+- 민감한 ESS 데이터 암호화 고려
+
+[확장성]
+- 여러 웹 클라이언트 동시 연결 지원
+- 여러 Vision Pro 기기 지원 (세션 관리 필요)
+- 녹화/재생 기능 추가 가능
+
+[제약]
+- 웹에서 visionOS와 완전히 동일한 렌더링은 불가능
+- 손 제스처 등 AR 고유 기능은 웹에서 시각화만 가능
+- 네트워크 불안정 시 동기화 지연 발생
+
+
+================================================================================
+6. 참고 자료
+================================================================================
+
+[Apple 문서]
+- URLSessionWebSocketTask:
+  https://developer.apple.com/documentation/foundation/urlsessionwebsockettask
+
+[Three.js]
+- 공식 문서: https://threejs.org/docs/
+- React Three Fiber: https://docs.pmnd.rs/react-three-fiber/
+
+[WebSocket]
+- MDN WebSocket API:
+  https://developer.mozilla.org/en-US/docs/Web/API/WebSocket
+- ws (Node.js 라이브러리): https://github.com/websockets/ws
+
+[3D 모델 변환]
+- Reality Converter:
+  https://developer.apple.com/augmented-reality/tools/
+- Blender USD 지원: https://docs.blender.org/manual/en/latest/files/import_export/usd.html
+
+
+================================================================================
+                              문서 끝
+================================================================================
